@@ -9,14 +9,14 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    permissions:
-      id-token: write
-      contents: write
+#     permissions:
+#       id-token: write
+#       contents: write
 
     env:
       DOCKER_USER: ${{ secrets.DOCKER_USER }}
       DOCKER_HUB_REPO: demoapp
-      AWS_REGION: us-east-2
+      AWS_REGION: us-east-1
       AWS_ROLE: arn:aws:iam::331226338131:role/cgl-str-github-actions
     
     steps:
@@ -68,17 +68,19 @@ jobs:
         run: |
           VERSION=$(curl --silent https://storage.googleapis.com/kubernetes-release/release/stable.txt)
           curl https://storage.googleapis.com/kubernetes-release/release/$VERSION/bin/linux/amd64/kubectl \
-              --progress-bar \
               --location \
               --remote-name
           chmod +x kubectl
           sudo mv kubectl /usr/local/bin/
           echo ${{ secrets.KUBECONFIG }} | base64 -di > kubeconfig.yaml
 
+      - name: Install Helm
+        uses: azure/setup-helm@v1
+        with:
+          version: v3.8.0
+
       - name: Deploy
-        run: |
-          export KUBECONFIG=kubeconfig.yaml
-          kubectl replace --force -f test-job.yml
+        run: helm upgrade -install --set image.repository="${{ env.DOCKER_USER }}/${{ env.DOCKER_HUB_REPO }}" --set image.tag=${{ steps.version.outputs.version }} myapp .
       
 
     
