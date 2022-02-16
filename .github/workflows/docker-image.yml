@@ -61,7 +61,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v1
         with:
           role-to-assume: ${{ env.AWS_ROLE }}
-          role-session-name: k8s-job-gh-actions
+          #role-session-name: k8s-job-gh-actions
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Install and configure kubectl
