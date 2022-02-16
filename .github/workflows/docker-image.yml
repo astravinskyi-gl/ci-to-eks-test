@@ -17,7 +17,7 @@ jobs:
       DOCKER_USER: ${{ secrets.DOCKER_USER }}
       DOCKER_HUB_REPO: demoapp
       AWS_REGION: us-east-1
-      AWS_ROLE: arn:aws:iam::331226338131:role/cgl-str-github-actions
+      AWS_ROLE: arn:aws:iam::331226338131:role/ci-GithubActionsRole
     
     steps:
       - name: Checkout
