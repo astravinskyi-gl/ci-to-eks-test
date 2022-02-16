@@ -9,6 +9,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+# permissions required by configure AWS creds step
     permissions:
       id-token: write
       contents: write
