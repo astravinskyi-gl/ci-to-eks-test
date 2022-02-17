@@ -74,6 +74,7 @@ jobs:
           chmod +x kubectl
           sudo mv kubectl /usr/local/bin/
           echo ${{ secrets.KUBECONFIG }} | base64 -di > kubeconfig.yaml
+          export KUBECONFIG=kubeconfig.yaml
 
       - name: Install Helm
         uses: azure/setup-helm@v1
