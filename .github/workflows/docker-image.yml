@@ -83,7 +83,7 @@ jobs:
       - name: test kubectl
         run: |
           export KUBECONFIG=kubeconfig.yaml
-          kubectl get nodes
+          kubectl get pods
 
       - name: Deploy
         run: helm upgrade -install --set image.repository="${{ env.DOCKER_USER }}/${{ env.DOCKER_HUB_REPO }}" --set image.tag=${{ steps.version.outputs.version }} myapp .
