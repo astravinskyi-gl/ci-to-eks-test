@@ -95,4 +95,9 @@ jobs:
         run: |
           export KUBECONFIG=kubeconfig.yaml
           kubectl replace --force -f test-job.yml
+          
+      - name: Rollback to previous version
+        run: |
+          export KUBECONFIG=kubeconfig.yaml
+          helm rollback <RELEASE> 0
     
