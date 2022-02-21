@@ -99,5 +99,5 @@ jobs:
       - name: Rollback to previous version
         run: |
           export KUBECONFIG=kubeconfig.yaml
-          helm rollback <RELEASE> 0
+          helm rollback myapp 0
     
