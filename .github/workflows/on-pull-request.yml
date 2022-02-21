@@ -89,7 +89,7 @@ jobs:
       - name: Deploy
         run: |
           export KUBECONFIG=kubeconfig.yaml
-          helm upgrade -install --set image.repository="${{ env.DOCKER_USER }}/${{ env.DOCKER_HUB_REPO }}" --set image.tag=rc myapp .
+          helm upgrade -install --set image.repository="${{ env.DOCKER_USER }}/${{ env.DOCKER_HUB_REPO }}" --set image.tag=rc myapp /testchart
       
       - name: Run test job
         run: |
