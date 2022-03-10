@@ -4,7 +4,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def index():
-    return 'Hello, it is newwww testing'
+    return 'Hello, it is newww testing'
 
 app.run(host='0.0.0.0', port=81)
 
