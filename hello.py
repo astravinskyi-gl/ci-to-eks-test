@@ -1,14 +1,22 @@
-from flask import Flask
+# from flask import Flask
 
-app = Flask(__name__)
+# app = Flask(__name__)
 
-@app.route('/')
-def index():
-    return 'Hello, it is newassww testing'
+#<<<<<<< HEAD
+#@app.route('/')
+#def index():
+#    return 'Hello, it is newassww testing'
+#=======
+# @app.route('/')
+# def index():
+#     return 'Hello, it is testing mthf'
+#>>>>>>> 55fbcf491591a1a7b2ed82a7978985bfb8dfac5b
 
-app.run(host='0.0.0.0', port=81)
+# app.run(host='0.0.0.0', port=81)
 
-# def print_hi(name):
-#     print("Hello " + name + " , it is the message from the test app")
+def print_hi(name):
+    i = 1
+    while i == 1:
+        print("Hello " + name + " , message from PR branch")
     
-# print_hi("everyone")
+print_hi("everyone")
