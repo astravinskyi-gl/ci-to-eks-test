@@ -100,6 +100,13 @@ jobs:
           export KUBECONFIG=kubeconfig.yaml
           kubectl get pods
 
+### Alternative method which is better but requires adding additional labels to deployment
+### https://stackoverflow.com/questions/53450759/helm-upgrade-install-isnt-picking-up-new-changes
+      - name: Get current image tag in release
+        run: |
+          export KUBECONFIG=kubeconfig.yaml
+          echo "CURRENT_TAG=$(helm get values myapp | sed -n -e 's/^.*tag: //p')" >> $GITHUB_ENV
+
       - name: Deploy
         run: |
           export KUBECONFIG=kubeconfig.yaml
@@ -107,14 +114,17 @@ jobs:
           helm upgrade --install --set image.repository="${{ env.DOCKER_USER }}/${{ env.DOCKER_HUB_REPO }}" --set image.tag=rc myapp testchart
       
       - name: Run test job
+        id: test_job
         run: |
           export KUBECONFIG=kubeconfig.yaml
           kubectl replace --force -f mec_kubernetes/test-job.yml
           
-#       - name: Rollback to previous version
-#         run: |
-#           export KUBECONFIG=kubeconfig.yaml
-#           helm rollback myapp 0
+      - name: Rollback to previous version
+        if: steps.test_job.outputs.exit_code == 0
+        run: |
+          export KUBECONFIG=kubeconfig.yaml
+          helm upgrade --install --set image.repository="${{ env.DOCKER_USER }}/${{ env.DOCKER_HUB_REPO }}" --set image.tag=${{ env.CURRENT_TAG }} myapp testchart
+          #helm rollback myapp 0
     
     ### to get job status
     # kubectl get pods --selector=job-name=mmg-e2etest-job --sort-by=.status.startTime | sed -n '$p' | awk '{print $3}'
