@@ -2,11 +2,9 @@
 
 # app = Flask(__name__)
 
-#<<<<<<< HEAD
 #@app.route('/')
 #def index():
 #    return 'Hello, it is newassww testing'
-#=======
 # @app.route('/')
 # def index():
 #     return 'Hello, it is testing mthf'
@@ -16,7 +14,7 @@
 
 def print_hi(name):
     i = 1
-    while i == 1:
+    while i < 5:
         print("Hello " + name + " , message from PR branch")
-    
+	i = i + 1
 print_hi("everyone")
