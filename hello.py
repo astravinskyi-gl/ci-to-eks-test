@@ -10,7 +10,7 @@
 
 def print_hi(name):
     i = 1
-    while i = 1:
+    while i == 1:
         print("Hello " + name + " , it is the message from the test app")
     
 print_hi("everyone")
