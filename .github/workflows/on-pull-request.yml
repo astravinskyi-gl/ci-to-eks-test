@@ -1,14 +1,14 @@
 name: Docker Image CI
 
-on:
-  workflow_dispatch:
-  push:
-    branches: [ main ]
-
 # on:
 #   workflow_dispatch:
-#   pull_request:
+#   push:
 #     branches: [ main ]
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [ main ]
 
 jobs:
   build:
@@ -107,10 +107,10 @@ jobs:
           export KUBECONFIG=kubeconfig.yaml
           kubectl replace --force -f mec_kubernetes/test-job.yml
           
-      - name: Rollback to previous version
-        run: |
-          export KUBECONFIG=kubeconfig.yaml
-          helm rollback myapp 0
+#       - name: Rollback to previous version
+#         run: |
+#           export KUBECONFIG=kubeconfig.yaml
+#           helm rollback myapp 0
     
     ### to get job status
     # kubectl get pods --selector=job-name=mmg-e2etest-job --sort-by=.status.startTime | sed -n '$p' | awk '{print $3}'
