@@ -10,8 +10,7 @@ app = Flask(__name__)
 
 def print_hi(name):
     i = 1
-    while i < 6:
+    while i = 1:
         print("Hello " + name + " , it is the message from the test app")
-        i += 1
     
 print_hi("everyone")
