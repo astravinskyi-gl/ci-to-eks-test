@@ -96,35 +96,54 @@ jobs:
           version: v3.8.0
           
       - name: test kubectl
+        #          export KUBECONFIG=kubeconfig.yaml
         run: |
-          export KUBECONFIG=kubeconfig.yaml
+          echo "KUBECONFIG=kubeconfig.yaml" >> $GITHUB_ENV
           kubectl get pods
 
 ### Alternative method which is better but requires adding additional labels to deployment
 ### https://stackoverflow.com/questions/53450759/helm-upgrade-install-isnt-picking-up-new-changes
       - name: Get current image tag in release
         run: |
-          export KUBECONFIG=kubeconfig.yaml
           echo "CURRENT_TAG=$(helm get values myapp | sed -n -e 's/^.*tag: //p')" >> $GITHUB_ENV
 
       - name: Deploy
         run: |
-          export KUBECONFIG=kubeconfig.yaml
           helm delete myapp
           helm upgrade --install --set image.repository="${{ env.DOCKER_USER }}/${{ env.DOCKER_HUB_REPO }}" --set image.tag=rc myapp testchart
       
       - name: Run test job
         id: test_job
         run: |
-          export KUBECONFIG=kubeconfig.yaml
           kubectl replace --force -f mec_kubernetes/test-job.yml
           
+      - name: Get test job pod name
+        run: echo "E2E_POD=$(kubectl get pods --selector=job-name=mmg-e2etest-job --sort-by=.status.startTime | sed -n '$p' | awk '{print $1}')" >> GITHUB_ENV
+          
+      - name: Check job status
+        timeout-minutes: 5
+        run: |
+          echo "JOB_STATUS=$(kubectl get pods ${{ env.E2E_POD }} --no-headers -o custom-columns=':status.phase')"
+          while [ $JOB_STATUS != "Succeeded" ]
+          do
+            echo "JOB_STATUS=$(kubectl get pods ${{ env.E2E_POD }} --no-headers -o custom-columns=':status.phase')"
+          done
+      
+      - name: Get test results
+        run: echo "TEST_FAILED=$(kubectl logs ${{ env.E2E_POD }} | grep 'All Test Done' | sed -e 's/.*total fail \(.\).*\*\*\*/\1/')" >> GITHUB_ENV
+      
       - name: Rollback to previous version
         if: steps.test_job.outputs.exit_code == 0
         run: |
-          export KUBECONFIG=kubeconfig.yaml
           helm upgrade --install --set image.repository="${{ env.DOCKER_USER }}/${{ env.DOCKER_HUB_REPO }}" --set image.tag=${{ env.CURRENT_TAG }} myapp testchart
           #helm rollback myapp 0
+          
+      - name: Show e2e-test result
+        if: ${{ env.TEST_FAILED }} != 0
+        run: |
+          echo "${{ env.TEST_FAILED }} - tests failed"
+          Complete logs output: kubectl logs ${{ env.E2E_POD }}
+          
     
     ### to get job status
     # kubectl get pods --selector=job-name=mmg-e2etest-job --sort-by=.status.startTime | sed -n '$p' | awk '{print $3}'
@@ -134,3 +153,5 @@ jobs:
     # kubectl logs $(kubectl get pods --selector=job-name=mmg-e2etest-job --sort-by=.status.startTime | sed -n '$p' | awk '{print $1}') | grep 'All Test Done' | sed -e 's/.*total succ \(.*\)total fail.*/\1/' 8
     
     # | grep 'All Test Done' | sed -e 's/.*total fail \(.\).*\*\*\*/\1/'
+    
+    # kubectl get pods mmg-e2etest-job-tf2bz --no-headers -o custom-columns=":status.phase"
