@@ -128,4 +128,9 @@ jobs:
     
     ### to get job status
     # kubectl get pods --selector=job-name=mmg-e2etest-job --sort-by=.status.startTime | sed -n '$p' | awk '{print $3}'
+
+    # kubectl logs $(kubectl get pods --selector=job-name=mmg-e2etest-job --sort-by=.status.startTime | sed -n '$p' | awk '{print $1}')
     
+    # kubectl logs $(kubectl get pods --selector=job-name=mmg-e2etest-job --sort-by=.status.startTime | sed -n '$p' | awk '{print $1}') | grep 'All Test Done' | sed -e 's/.*total succ \(.*\)total fail.*/\1/' 8
+    
+    # | grep 'All Test Done' | sed -e 's/.*total fail \(.\).*\*\*\*/\1/'
