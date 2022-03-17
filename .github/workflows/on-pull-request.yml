@@ -130,8 +130,9 @@ jobs:
         run: helm rollback myapp 0
           
       - name: Show e2e-test result
-        if: ${{ env.TEST_FAILED }} != 0
         run: |
-          echo "Count of failed tests: " ${{ env.TEST_FAILED }}
-          echo "Complete logs output:" && kubectl logs ${{ env.E2E_POD }}
-          exit 1
+          if [ ${{ env.TEST_FAILED }} -ne 0 ]; then
+            echo "Count of failed tests: " ${{ env.TEST_FAILED }}
+            echo "Complete logs output:" && kubectl logs ${{ env.E2E_POD }}
+            exit 1
+          fi
