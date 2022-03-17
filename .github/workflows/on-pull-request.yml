@@ -104,16 +104,10 @@ jobs:
         id: test_job
         run: kubectl replace --force -f mec_kubernetes/test-job.yml
         
-      - name: test set var
-        run: echo "action_state=yellow" >> $GITHUB_ENV
-        
       - name: Get test job pod name
         run: |
           E2E_POD_TMP=$(kubectl get pods --selector=job-name=mmg-e2etest-job --sort-by=.status.startTime | sed -n '$p' | awk '{print $1}')
           echo "E2E_POD=$E2E_POD_TMP" >> $GITHUB_ENV
-          
-      - name: test var
-        run: echo ${{ env.E2E_POD }}
           
       - name: Check job status
         timeout-minutes: 5
@@ -126,8 +120,8 @@ jobs:
       
       - name: Get test results
         run: |
-          TEST_FAILED=$(kubectl logs ${{ env.E2E_POD }} | grep 'All Test Done' | sed -e 's/.*total fail \(.\).*\*\*\*/\1/')
-          echo $TEST_FAILED >> GITHUB_ENV
+          TEST_FAILED_TMP=$(kubectl logs ${{ env.E2E_POD }} | grep 'All Test Done' | sed -e 's/.*total fail \(.\).*\*\*\*/\1/')
+          echo "TEST_FAILED=$TEST_FAILED_TMP" >> GITHUB_ENV
       
       - name: Rollback to previous version
         if: steps.test_job.outputs.exit_code == 0
