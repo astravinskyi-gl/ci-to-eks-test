@@ -131,7 +131,7 @@ jobs:
           
       - name: Show e2e-test result
         run: |
-          if [ ${{ env.TEST_FAILED }} -eq 0 ]; then
+          if [ ${{ env.TEST_FAILED }} -nq 0 ]; then
             echo "Count of failed tests: " ${{ env.TEST_FAILED }}
             echo "Complete logs output:" && kubectl logs ${{ env.E2E_POD }}
             exit 1
