@@ -93,9 +93,9 @@ jobs:
 
 ### Alternative method which is better but requires adding additional labels to deployment
 ### https://stackoverflow.com/questions/53450759/helm-upgrade-install-isnt-picking-up-new-changes
-      - name: Get current image tag in release
-        run: |
-          echo "CURRENT_TAG=$(helm get values myapp | sed -n -e 's/^.*tag: //p')" >> $GITHUB_ENV
+#       - name: Get current image tag in release
+#         run: |
+#           echo "CURRENT_TAG=$(helm get values myapp | sed -n -e 's/^.*tag: //p')" >> $GITHUB_ENV
         
       - name: Deploy
         run: helm upgrade --install --set image.repository="${{ env.DOCKER_USER }}/${{ env.DOCKER_HUB_REPO }}" --set image.tag=rc myapp testchart
@@ -117,7 +117,9 @@ jobs:
           done
       
       - name: Get test results
-        run: echo "TEST_FAILED=$(kubectl logs "${{ env.E2E_POD }}" | grep 'All Test Done' | sed -e 's/.*total fail \(.\).*\*\*\*/\1/')" >> GITHUB_ENV
+        run: |
+          TEST_FAILED=$(kubectl logs ${{ env.E2E_POD }} | grep 'All Test Done' | sed -e 's/.*total fail \(.\).*\*\*\*/\1/')
+          echo $TEST_FAILED >> GITHUB_ENV
       
       - name: Rollback to previous version
         if: steps.test_job.outputs.exit_code == 0
@@ -128,8 +130,8 @@ jobs:
       - name: Show e2e-test result
         if: ${{ env.TEST_FAILED }} != 0
         run: |
-          echo "${{ env.TEST_FAILED }} - tests failed"
-          Complete logs output: kubectl logs ${{ env.E2E_POD }}
+          echo "tests failed: " ${{ env.TEST_FAILED }}
+          echo "Complete logs output:" && kubectl logs ${{ env.E2E_POD }}
           
     
     ### to get job status
