@@ -96,9 +96,9 @@ jobs:
           version: v3.8.0
           
       - name: test kubectl
-        #          export KUBECONFIG=kubeconfig.yaml
+        #    echo "KUBECONFIG=kubeconfig.yaml" >> $GITHUB_ENV
         run: |
-          echo "KUBECONFIG=kubeconfig.yaml" >> $GITHUB_ENV
+          export KUBECONFIG=kubeconfig.yaml
           kubectl get pods
 
 ### Alternative method which is better but requires adding additional labels to deployment
