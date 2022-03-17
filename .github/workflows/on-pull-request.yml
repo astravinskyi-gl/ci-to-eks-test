@@ -106,16 +106,13 @@ jobs:
       - name: Get current image tag in release
         run: |
           echo "CURRENT_TAG=$(helm get values myapp | sed -n -e 's/^.*tag: //p')" >> $GITHUB_ENV
-
+        
       - name: Deploy
-        run: |
-          helm delete myapp
-          helm upgrade --install --set image.repository="${{ env.DOCKER_USER }}/${{ env.DOCKER_HUB_REPO }}" --set image.tag=rc myapp testchart
+        run: helm upgrade --install --set image.repository="${{ env.DOCKER_USER }}/${{ env.DOCKER_HUB_REPO }}" --set image.tag=rc myapp testchart
       
       - name: Run test job
         id: test_job
-        run: |
-          kubectl replace --force -f mec_kubernetes/test-job.yml
+        run: kubectl replace --force -f mec_kubernetes/test-job.yml
           
       - name: Get test job pod name
         run: echo "E2E_POD=$(kubectl get pods --selector=job-name=mmg-e2etest-job --sort-by=.status.startTime | sed -n '$p' | awk '{print $1}')" >> GITHUB_ENV
@@ -123,10 +120,10 @@ jobs:
       - name: Check job status
         timeout-minutes: 5
         run: |
-          echo "JOB_STATUS=$(kubectl get pods ${{ env.E2E_POD }} --no-headers -o custom-columns=':status.phase')"
+          JOB_STATUS=$(kubectl get pods ${{ env.E2E_POD }} --no-headers -o custom-columns=':status.phase')
           while [ $JOB_STATUS != "Succeeded" ]
           do
-            echo "JOB_STATUS=$(kubectl get pods ${{ env.E2E_POD }} --no-headers -o custom-columns=':status.phase')"
+            JOB_STATUS=$(kubectl get pods ${{ env.E2E_POD }} --no-headers -o custom-columns=':status.phase')
           done
       
       - name: Get test results
@@ -135,8 +132,8 @@ jobs:
       - name: Rollback to previous version
         if: steps.test_job.outputs.exit_code == 0
         run: |
-          helm upgrade --install --set image.repository="${{ env.DOCKER_USER }}/${{ env.DOCKER_HUB_REPO }}" --set image.tag=${{ env.CURRENT_TAG }} myapp testchart
-          #helm rollback myapp 0
+          #helm upgrade --install --set image.repository="${{ env.DOCKER_USER }}/${{ env.DOCKER_HUB_REPO }}" --set image.tag=${{ env.CURRENT_TAG }} myapp testchart
+          helm rollback myapp 0
           
       - name: Show e2e-test result
         if: ${{ env.TEST_FAILED }} != 0
