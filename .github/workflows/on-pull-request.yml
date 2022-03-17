@@ -19,13 +19,14 @@ jobs:
       DOCKER_HUB_REPO: demoapp
       AWS_REGION: us-east-2
       AWS_ROLE: arn:aws:iam::331226338131:role/ci-GithubActionsRole
+      JOB_NAME: mmg-e2etest-job
     
     steps:
       - name: Checkout
         uses: actions/checkout@v3
 
-#       - name: Check file
-#         run: cat hello.py
+      - name: Check file
+        run: cat hello.py
         
       - name: Checkout config repo
         uses: actions/checkout@v3
@@ -106,7 +107,7 @@ jobs:
         
       - name: Get test job pod name
         run: |
-          E2E_POD_TMP=$(kubectl get pods --selector=job-name=mmg-e2etest-job --sort-by=.status.startTime | sed -n '$p' | awk '{print $1}')
+          E2E_POD_TMP=$(kubectl get pods --selector=job-name=${{ JOB_NAME }} --sort-by=.status.startTime | sed -n '$p' | awk '{print $1}')
           echo "E2E_POD=$E2E_POD_TMP" >> $GITHUB_ENV
           
       - name: Check job status
@@ -125,26 +126,12 @@ jobs:
       
       - name: Rollback to previous version
         #if: steps.test_job.outputs.exit_code == 0
-        run: |
-          #helm upgrade --install --set image.repository="${{ env.DOCKER_USER }}/${{ env.DOCKER_HUB_REPO }}" --set image.tag=${{ env.CURRENT_TAG }} myapp testchart
-          helm rollback myapp 0
+        #helm upgrade --install --set image.repository="${{ env.DOCKER_USER }}/${{ env.DOCKER_HUB_REPO }}" --set image.tag=${{ env.CURRENT_TAG }} myapp testchart
+        run: helm rollback myapp 0
           
       - name: Show e2e-test result
-        if: ${{ env.TEST_FAILED }} == 0
-        #if: ${{ env.TEST_FAILED }} != 0
+        if: ${{ env.TEST_FAILED }} != 0
         run: |
-          echo "tests failed: " ${{ env.TEST_FAILED }}
+          echo "Count of failed tests: " ${{ env.TEST_FAILED }}
           echo "Complete logs output:" && kubectl logs ${{ env.E2E_POD }}
           exit 1
-          
-    
-    ### to get job status
-    # kubectl get pods --selector=job-name=mmg-e2etest-job --sort-by=.status.startTime | sed -n '$p' | awk '{print $3}'
-
-    # kubectl logs $(kubectl get pods --selector=job-name=mmg-e2etest-job --sort-by=.status.startTime | sed -n '$p' | awk '{print $1}')
-    
-    # kubectl logs $(kubectl get pods --selector=job-name=mmg-e2etest-job --sort-by=.status.startTime | sed -n '$p' | awk '{print $1}') | grep 'All Test Done' | sed -e 's/.*total succ \(.*\)total fail.*/\1/' 8
-    
-    # | grep 'All Test Done' | sed -e 's/.*total fail \(.\).*\*\*\*/\1/'
-    
-    # kubectl get pods mmg-e2etest-job-tf2bz --no-headers -o custom-columns=":status.phase"
