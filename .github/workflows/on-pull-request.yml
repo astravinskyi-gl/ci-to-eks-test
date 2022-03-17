@@ -121,7 +121,7 @@ jobs:
       - name: Get test results
         run: |
           TEST_FAILED_TMP=$(kubectl logs ${{ env.E2E_POD }} | grep 'All Test Done' | sed -e 's/.*total fail \(.\).*\*\*\*/\1/')
-          echo "TEST_FAILED=$TEST_FAILED_TMP" >> GITHUB_ENV
+          echo "TEST_FAILED=$TEST_FAILED_TMP" >> $GITHUB_ENV
       
       - name: Rollback to previous version
         if: steps.test_job.outputs.exit_code == 0
