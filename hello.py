@@ -11,6 +11,6 @@
 def print_hi(name):
     i = 1
     while i == 1:
-        print("HAHA, it is the TEST")
+        print("NEW TEST 18:20")
     
 print_hi("everyone")
