@@ -79,16 +79,27 @@ jobs:
           role-to-assume: ${{ env.AWS_ROLE }}
           #role-session-name: k8s-job-gh-actions
           aws-region: ${{ env.AWS_REGION }}
+          
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v2.0
+        with:
+          version: 'v1.23.5'
+          
+      - name: Set Kubernetes Context
+        uses: azure/k8s-set-context@v1
+        with:
+          method: kubeconfig
+          kubeconfig: ${{ secrets.KUBECONFIG }}
 
-      - name: Install and configure kubectl
-        run: |
-          VERSION=$(curl --silent https://storage.googleapis.com/kubernetes-release/release/stable.txt)
-          curl https://storage.googleapis.com/kubernetes-release/release/$VERSION/bin/linux/amd64/kubectl \
-              --location \
-              --remote-name
-          chmod +x kubectl
-          sudo mv kubectl /usr/local/bin/
-          echo ${{ secrets.KUBECONFIG }} | base64 -di > kubeconfig.yaml
+#       - name: Install and configure kubectl
+#         run: |
+#           VERSION=$(curl --silent https://storage.googleapis.com/kubernetes-release/release/stable.txt)
+#           curl https://storage.googleapis.com/kubernetes-release/release/$VERSION/bin/linux/amd64/kubectl \
+#               --location \
+#               --remote-name
+#           chmod +x kubectl
+#           sudo mv kubectl /usr/local/bin/
+#           echo ${{ secrets.KUBECONFIG }} | base64 -di > kubeconfig.yaml
 
       - name: Install Helm
         uses: azure/setup-helm@v1
@@ -97,9 +108,7 @@ jobs:
           
       - name: test kubectl
         #    echo "KUBECONFIG=kubeconfig.yaml" >> $GITHUB_ENV
-        run: |
-          export KUBECONFIG=kubeconfig.yaml
-          kubectl get pods
+        run: kubectl get pods
 
 ### Alternative method which is better but requires adding additional labels to deployment
 ### https://stackoverflow.com/questions/53450759/helm-upgrade-install-isnt-picking-up-new-changes
