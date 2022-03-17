@@ -1,16 +1,16 @@
-# from flask import Flask
+from flask import Flask
 
-# app = Flask(__name__)
+app = Flask(__name__)
 
-# @app.route('/')
-# def index():
-#     return 'Hello, it is testing mthf'
+@app.route('/')
+def index():
+    return 'IT IS SUPER TEST 19:15'
 
-# app.run(host='0.0.0.0', port=81)
+app.run(host='0.0.0.0', port=81)
 
-def print_hi(name):
-    i = 1
-    while i == 1:
-        print("SUPER TEST 19:00")
+# def print_hi(name):
+#     i = 1
+#     while i == 1:
+#         print("SUPER TEST 19:00")
     
-print_hi("everyone")
+# print_hi("everyone")
