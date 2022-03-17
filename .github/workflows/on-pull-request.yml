@@ -124,14 +124,14 @@ jobs:
           TEST_FAILED_TMP=$(kubectl logs ${{ env.E2E_POD }} | grep 'All Test Done' | sed -e 's/.*total fail \(.\).*\*\*\*/\1/')
           echo "TEST_FAILED=$TEST_FAILED_TMP" >> $GITHUB_ENV
       
-      - name: Rollback to previous version
-        #if: steps.test_job.outputs.exit_code == 0
-        #helm upgrade --install --set image.repository="${{ env.DOCKER_USER }}/${{ env.DOCKER_HUB_REPO }}" --set image.tag=${{ env.CURRENT_TAG }} myapp testchart
-        run: helm rollback myapp 0
+#       - name: Rollback to previous version
+#         #if: steps.test_job.outputs.exit_code == 0
+#         #helm upgrade --install --set image.repository="${{ env.DOCKER_USER }}/${{ env.DOCKER_HUB_REPO }}" --set image.tag=${{ env.CURRENT_TAG }} myapp testchart
+#         run: helm rollback myapp 0
           
       - name: Show e2e-test result
         run: |
-          if [ ${{ env.TEST_FAILED }} -ne 0 ]; then
+          if [ ${{ env.TEST_FAILED }} -eq 0 ]; then
             echo "Count of failed tests: " ${{ env.TEST_FAILED }}
             echo "Complete logs output:" && kubectl logs ${{ env.E2E_POD }}
             exit 1
