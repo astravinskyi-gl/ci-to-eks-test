@@ -107,7 +107,7 @@ jobs:
         
       - name: Get test job pod name
         run: |
-          E2E_POD_TMP=$(kubectl get pods --selector=job-name=${{ JOB_NAME }} --sort-by=.status.startTime | sed -n '$p' | awk '{print $1}')
+          E2E_POD_TMP=$(kubectl get pods --selector=job-name=${{ env.JOB_NAME }} --sort-by=.status.startTime | sed -n '$p' | awk '{print $1}')
           echo "E2E_POD=$E2E_POD_TMP" >> $GITHUB_ENV
           
       - name: Check job status
