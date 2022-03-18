@@ -140,3 +140,6 @@ jobs:
             echo "Complete logs output:" && kubectl logs ${{ env.E2E_POD }}
             exit 1
           fi
+          
+      - name: Get workflow status
+        run: curl https://api.github.com/repos/astravinskyi-gl/demo-app/actions/workflows/docker-image.yml/runs
