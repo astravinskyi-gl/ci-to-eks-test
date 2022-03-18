@@ -58,6 +58,9 @@ jobs:
           
       - name: Rename job to be unique
         run: mv mec_kubernetes/${{ env.JOB_NAME }}.yml mec_kubernetes/${{ env.JOB_NAME }}-${{ env.IMAGE_TAG }}.yml
+        
+      - name: test rename
+        run: ls -la
 
       - name: Build and push
         uses: docker/build-push-action@v2
