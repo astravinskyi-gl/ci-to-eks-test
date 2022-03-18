@@ -142,4 +142,4 @@ jobs:
           fi
           
       - name: Get workflow status
-        run: curl https://api.github.com/repos/astravinskyi-gl/demo-app/actions/workflows/docker-image.yml/runs | jq '.workflow_runs[0]'
+        run: curl https://api.github.com/repos/astravinskyi-gl/demo-app/actions/workflows/docker-image.yml/runs | jq '.workflow_runs[0].status'
