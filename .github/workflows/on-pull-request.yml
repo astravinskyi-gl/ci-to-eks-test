@@ -112,7 +112,7 @@ jobs:
       
       - name: Run test job
         id: test_job
-        run: kubectl replace --force -f mec_kubernetes/test-job.yml
+        run: kubectl replace --force -f mec_kubernetes/${{ env.JOB_NAME }}-${{ env.IMAGE_TAG }}.yml
         
       - name: Get test job pod name
         run: |
