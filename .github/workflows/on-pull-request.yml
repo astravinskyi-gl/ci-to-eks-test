@@ -55,12 +55,6 @@ jobs:
         run: |
           timestamp=$(date +%Y%m%d%H%M%S)
           echo "IMAGE_TAG=rc-$timestamp" >> $GITHUB_ENV
-          
-      - name: Rename job to be unique
-        run: mv mec_kubernetes/${{ env.JOB_NAME }}.yml mec_kubernetes/${{ env.JOB_NAME }}-${{ env.IMAGE_TAG }}.yml
-        
-      - name: test rename
-        run: ls -la mec_kubernetes
 
       - name: Build and push
         uses: docker/build-push-action@v2
@@ -115,7 +109,7 @@ jobs:
       
       - name: Run test job
         id: test_job
-        run: kubectl replace --force -f mec_kubernetes/${{ env.JOB_NAME }}-${{ env.IMAGE_TAG }}.yml
+        run: kubectl replace --force -f mec_kubernetes/${{ env.JOB_NAME }}.yml
         
       - name: Get test job pod name
         run: |
