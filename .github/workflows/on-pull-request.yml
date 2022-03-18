@@ -63,7 +63,7 @@ jobs:
         with:
           push: true
           #tags: ${{ env.DOCKER_USER }}/${{ env.DOCKER_HUB_REPO }}:latest, ${{ env.DOCKER_USER }}/${{ env.DOCKER_HUB_REPO }}:${{ steps.version.outputs.version }}
-          tags: ${{ env.DOCKER_USER }}/${{ env.DOCKER_HUB_REPO }}:${{ IMAGE_TAG }}
+          tags: ${{ env.DOCKER_USER }}/${{ env.DOCKER_HUB_REPO }}:${{ env.IMAGE_TAG }}
       
 #       - name: Create Release
 #         if: ${{ !startsWith(github.ref, 'refs/tags/') }}
