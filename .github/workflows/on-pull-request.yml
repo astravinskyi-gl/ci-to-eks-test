@@ -49,13 +49,21 @@ jobs:
         with:
           username: ${{ env.DOCKER_USER }}
           password: ${{ secrets.DOCKER_PASSWORD }}
+          
+      - name: Generate image tag
+        run: |
+          timestamp=$(date +%Y%m%d%H%M%S)
+          echo "IMAGE_TAG=rc-$timestamp" >> $GITHUB_ENV
+          
+      - name: Get test tag
+        run: echo ${{ IMAGE_TAG }}
 
       - name: Build and push
         uses: docker/build-push-action@v2
         with:
           push: true
           #tags: ${{ env.DOCKER_USER }}/${{ env.DOCKER_HUB_REPO }}:latest, ${{ env.DOCKER_USER }}/${{ env.DOCKER_HUB_REPO }}:${{ steps.version.outputs.version }}
-          tags: ${{ env.DOCKER_USER }}/${{ env.DOCKER_HUB_REPO }}:rc
+          tags: ${{ env.DOCKER_USER }}/${{ env.DOCKER_HUB_REPO }}:${{ IMAGE_TAG }}
       
 #       - name: Create Release
 #         if: ${{ !startsWith(github.ref, 'refs/tags/') }}
@@ -94,9 +102,9 @@ jobs:
 
 ### Alternative method which is better but requires adding additional labels to deployment
 ### https://stackoverflow.com/questions/53450759/helm-upgrade-install-isnt-picking-up-new-changes
-#       - name: Get current image tag in release
-#         run: |
-#           echo "CURRENT_TAG=$(helm get values myapp | sed -n -e 's/^.*tag: //p')" >> $GITHUB_ENV
+      - name: Get current image tag in release
+        run: |
+          echo "CURRENT_TAG=$(helm get values myapp | sed -n -e 's/^.*tag: //p')" >> $GITHUB_ENV
         
       - name: Deploy
         run: helm upgrade --install --set image.repository="${{ env.DOCKER_USER }}/${{ env.DOCKER_HUB_REPO }}" --set image.tag=rc myapp testchart
@@ -125,9 +133,7 @@ jobs:
           echo "TEST_FAILED=$TEST_FAILED_TMP" >> $GITHUB_ENV
       
 #       - name: Rollback to previous version
-#         #if: steps.test_job.outputs.exit_code == 0
 #         #helm upgrade --install --set image.repository="${{ env.DOCKER_USER }}/${{ env.DOCKER_HUB_REPO }}" --set image.tag=${{ env.CURRENT_TAG }} myapp testchart
-#         run: helm rollback myapp 0
           
       - name: Show e2e-test result
         run: |
