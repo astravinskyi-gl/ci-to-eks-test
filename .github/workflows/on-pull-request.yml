@@ -141,10 +141,18 @@ jobs:
 #             exit 1
 #           fi
           
-      - name: Get workflow status
-        run: |
-          DEMO_APP_STATUS=$(curl https://api.github.com/repos/astravinskyi-gl/demo-app/actions/workflows/docker-image.yml/runs | jq '.workflow_runs[0].status')
-          echo "DEMO_STATUS=$DEMO_APP_STATUS" >> $GITHUB_ENV
+#       - name: Get workflow status
+#         run: |
+#           DEMO_APP_STATUS=$(curl https://api.github.com/repos/astravinskyi-gl/demo-app/actions/workflows/docker-image.yml/runs | jq '.workflow_runs[0].status')
+#           echo "DEMO_STATUS=$DEMO_APP_STATUS" >> $GITHUB_ENV
           
-      - name: test
-        run: echo ${{ env.DEMO_STATUS }}
+#       - name: test
+#         run: echo ${{ env.DEMO_STATUS }}
+
+
+      - name: Wait for tests to succeed
+        uses: lewagon/wait-on-check-action@v1.0.0
+        with:
+          ref: https://github.com/astravinskyi-gl/demo-app
+          running-workflow-name: 'Docker Image CI'
+          wait-interval: 20
