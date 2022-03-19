@@ -27,7 +27,8 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Check file
-        run: cat hello.py
+        timeout-minutes: 1
+        run: cat hello.py && sleep 65
         
       - name: Checkout config repo
         uses: actions/checkout@v3
@@ -97,6 +98,14 @@ jobs:
           
       - name: test kubectl
         run: kubectl get pods
+
+      - name: Check if another CI is not in progress
+        run: | 
+          MARKER=$(kubectl get deploy myapp -o=jsonpath='{.spec.replicas}')
+          while [ $MARKER -nq 0 ]
+          do
+            MARKER=$(kubectl get deploy myapp -o=jsonpath='{.spec.replicas}')
+          done
 
 ### Alternative method which is better but requires adding additional labels to deployment
 ### https://stackoverflow.com/questions/53450759/helm-upgrade-install-isnt-picking-up-new-changes
