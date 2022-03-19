@@ -152,3 +152,4 @@ jobs:
       - name: test
         run: echo "hello"
           
+### k get deploy myapp -o=jsonpath='{.spec.replicas}'
