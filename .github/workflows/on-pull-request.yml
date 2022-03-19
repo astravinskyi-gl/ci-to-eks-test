@@ -144,6 +144,7 @@ jobs:
       - name: Get workflow status
         run: |
           DEMO_APP_STATUS=$(curl https://api.github.com/repos/astravinskyi-gl/demo-app/actions/workflows/docker-image.yml/runs | jq '.workflow_runs[0].status')
-          echo $DEMO_APP_STATUS
+          echo "DEMO_STATUS=$DEMO_APP_STATUS" >> $GITHUB_ENV
+          
       - name: test
-        run: echo "hello world"
+        run: echo ${{ env.DEMO_STATUS }}
