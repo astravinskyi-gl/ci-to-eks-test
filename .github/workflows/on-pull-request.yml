@@ -153,6 +153,10 @@ jobs:
       - name: Wait for tests to succeed
         uses: lewagon/wait-on-check-action@v1.0.0
         with:
-          ref: https://github.com/astravinskyi-gl/demo-app
+          ref: https://github.com/astravinskyi-gl/demo-app:*
           running-workflow-name: 'Docker Image CI'
           wait-interval: 20
+          
+      - name: test
+        run: echo "hello"
+          
