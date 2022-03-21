@@ -13,7 +13,6 @@ spec:
     metadata:
       labels:
         app: {{ .Release.Name }}
-        date: "{{ now | unixEpoch }}"
     spec:
       containers:
         - name: {{ .Release.Name }}
@@ -26,8 +25,8 @@ spec:
           livenessProbe:
             httpGet:
               path: /
-              port: 81
+              port: {{ .Values.container.port }}
           readinessProbe:
             httpGet:
               path: /
-              port: 81
+              port: {{ .Values.container.port }}
