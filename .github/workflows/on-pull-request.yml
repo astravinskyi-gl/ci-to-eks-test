@@ -92,15 +92,15 @@ jobs:
         with:
           version: v3.8.0
 
-      - name: Check if another CI is not in progress
-        timeout-minutes: 10
-        run: | 
-          MARKER=$(kubectl get deploy myapp -o=jsonpath='{.spec.replicas}')
-          while [ $MARKER -nq 0 ]
-          do
-            MARKER=$(kubectl get deploy myapp -o=jsonpath='{.spec.replicas}')
-            sleep $((2 + $RANDOM % 3))
-          done
+#       - name: Check if another CI is not in progress
+#         timeout-minutes: 10
+#         run: | 
+#           MARKER=$(kubectl get deploy myapp -o=jsonpath='{.spec.replicas}')
+#           while [ $MARKER -nq 0 ]
+#           do
+#             MARKER=$(kubectl get deploy myapp -o=jsonpath='{.spec.replicas}')
+#             sleep $((2 + $RANDOM % 3))
+#           done
 
 ### Alternative method which is better but requires adding additional labels to deployment
 ### https://stackoverflow.com/questions/53450759/helm-upgrade-install-isnt-picking-up-new-changes
@@ -109,7 +109,7 @@ jobs:
           echo "CURRENT_TAG=$(helm get values myapp | sed -n -e 's/^.*tag: //p')" >> $GITHUB_ENV
         
       - name: Deploy
-        run: helm upgrade --install --set image.repository="${{ env.DOCKER_USER }}/${{ env.DOCKER_HUB_REPO }}" --set image.tag=${{ env.IMAGE_TAG }} myapp testchart
+        run: helm upgrade --install --set image.repository="${{ env.DOCKER_USER }}/${{ env.DOCKER_HUB_REPO }}" --set image.tag=ci-helper myapp testchart
       
 #       - name: Run test job
 #         id: test_job
