@@ -96,7 +96,7 @@ jobs:
         timeout-minutes: 10
         run: | 
           MARKER=$(kubectl get deploy ci-helper -o=jsonpath='{.spec.replicas}')
-          while [ $MARKER -nq 0 ]
+          while [ $MARKER -ne 0 ]
           do
             MARKER=$(kubectl get deploy ci-helper -o=jsonpath='{.spec.replicas}')
             sleep $((2 + $RANDOM % 3))
