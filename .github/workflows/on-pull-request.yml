@@ -96,7 +96,7 @@ jobs:
         timeout-minutes: 10
         run: | 
           MARKER=$(kubectl get deploy ci-helper -o=jsonpath='{.spec.replicas}')
-          while [ $MARKER -eq 1 ]
+          while [ $MARKER -nq 0 ]
           do
             MARKER=$(kubectl get deploy ci-helper -o=jsonpath='{.spec.replicas}')
             sleep $((2 + $RANDOM % 3))
@@ -150,7 +150,7 @@ jobs:
    
       - name: test ci-helper
         run: |
-          sleep 90
+          sleep 30
           kubectl get po
           
       - name: Release marker in ci-helper
