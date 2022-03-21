@@ -113,7 +113,7 @@ jobs:
           echo "CURRENT_TAG=$(helm get values ${{ env.APP_NAME }} | sed -n -e 's/^.*tag: //p')" >> $GITHUB_ENV
         
       - name: Deploy
-        run: helm upgrade --install --set image.repository="${{ env.DOCKER_USER }}/${{ env.DOCKER_HUB_REPO }}" --set image.tag=${{ env. RC_IMAGE_TAG }} ${{ env.APP_NAME }} testchart
+        run: helm upgrade --install --set image.repository="${{ env.DOCKER_USER }}/${{ env.DOCKER_HUB_REPO }}" --set image.tag=${{ env.RC_IMAGE_TAG }} ${{ env.APP_NAME }} testchart
       
       - name: Run test job
         run: kubectl replace --force -f mec_kubernetes/${{ env.JOB_NAME }}.yml
