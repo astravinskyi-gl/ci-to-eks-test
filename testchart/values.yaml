@@ -9,7 +9,7 @@ image:
 
 service:
   type: ClusterIP
-  port: 81
+  port: 60080
 
 container:
-  port: 81
+  port: 60080
