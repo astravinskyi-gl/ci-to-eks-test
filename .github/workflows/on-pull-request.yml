@@ -105,6 +105,7 @@ jobs:
           while [ $MARKER -nq 0 ]
           do
             MARKER=$(kubectl get deploy myapp -o=jsonpath='{.spec.replicas}')
+            sleep $((2 + $RANDOM % 3))
           done
 
 ### Alternative method which is better but requires adding additional labels to deployment
