@@ -109,7 +109,7 @@ jobs:
           echo "CURRENT_TAG=$(helm get values myapp | sed -n -e 's/^.*tag: //p')" >> $GITHUB_ENV
         
       - name: Deploy
-        run: helm upgrade --install --set image.repository="${{ env.DOCKER_USER }}/${{ env.DOCKER_HUB_REPO }}" --set image.tag=ci-helper myapp testchart
+        run: helm upgrade --install --set image.repository="${{ env.DOCKER_USER }}/${{ env.DOCKER_HUB_REPO }}" --set image.tag=ci-helper ci-helper testchart
       
 #       - name: Run test job
 #         id: test_job
