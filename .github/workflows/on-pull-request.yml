@@ -53,12 +53,12 @@ jobs:
           timestamp=$(date +%Y%m%d%H%M%S)
           echo "IMAGE_TAG=rc-$timestamp" >> $GITHUB_ENV
 
-      - name: Build and push
-        uses: docker/build-push-action@v2
-        with:
-          push: true
-          #tags: ${{ env.DOCKER_USER }}/${{ env.DOCKER_HUB_REPO }}:latest, ${{ env.DOCKER_USER }}/${{ env.DOCKER_HUB_REPO }}:${{ steps.version.outputs.version }}
-          tags: ${{ env.DOCKER_USER }}/${{ env.DOCKER_HUB_REPO }}:ci-helper
+#       - name: Build and push
+#         uses: docker/build-push-action@v2
+#         with:
+#           push: true
+#           #tags: ${{ env.DOCKER_USER }}/${{ env.DOCKER_HUB_REPO }}:latest, ${{ env.DOCKER_USER }}/${{ env.DOCKER_HUB_REPO }}:${{ steps.version.outputs.version }}
+#           tags: ${{ env.DOCKER_USER }}/${{ env.DOCKER_HUB_REPO }}:ci-helper
       
 #       - name: Create Release
 #         if: ${{ !startsWith(github.ref, 'refs/tags/') }}
@@ -92,68 +92,75 @@ jobs:
         with:
           version: v3.8.0
 
-#       - name: Check if another CI is not in progress
-#         timeout-minutes: 10
-#         run: | 
-#           MARKER=$(kubectl get deploy myapp -o=jsonpath='{.spec.replicas}')
-#           while [ $MARKER -nq 0 ]
-#           do
-#             MARKER=$(kubectl get deploy myapp -o=jsonpath='{.spec.replicas}')
-#             sleep $((2 + $RANDOM % 3))
-#           done
+      - name: Check if another CI is not in progress
+        timeout-minutes: 10
+        run: | 
+          MARKER=$(kubectl get deploy myapp -o=jsonpath='{.spec.replicas}')
+          while [ $MARKER -nq 0 ]
+          do
+            MARKER=$(kubectl get deploy myapp -o=jsonpath='{.spec.replicas}')
+            sleep $((2 + $RANDOM % 3))
+          done
+          
+      - name: Set marker in ci-helper to blocked
+        run: kubectl scale deployment ci-helper --replicas=1
 
 ### Alternative method which is better but requires adding additional labels to deployment
 ### https://stackoverflow.com/questions/53450759/helm-upgrade-install-isnt-picking-up-new-changes
-      - name: Get current image tag in release
-        run: |
-          echo "CURRENT_TAG=$(helm get values myapp | sed -n -e 's/^.*tag: //p')" >> $GITHUB_ENV
+#       - name: Get current image tag in release
+#         run: |
+#           echo "CURRENT_TAG=$(helm get values myapp | sed -n -e 's/^.*tag: //p')" >> $GITHUB_ENV
         
-      - name: Deploy
-        run: helm upgrade --install --set image.repository="${{ env.DOCKER_USER }}/${{ env.DOCKER_HUB_REPO }}" --set image.tag=ci-helper ci-helper testchart
+#       - name: Deploy
+#         run: helm upgrade --install --set image.repository="${{ env.DOCKER_USER }}/${{ env.DOCKER_HUB_REPO }}" --set image.tag=ci-helper ci-helper testchart
       
 #       - name: Run test job
 #         id: test_job
 #         run: kubectl replace --force -f mec_kubernetes/${{ env.JOB_NAME }}.yml
         
-      - name: Get test job pod name
-        run: |
-          E2E_POD_TMP=$(kubectl get pods --selector=job-name=${{ env.JOB_NAME }} --sort-by=.status.startTime | sed -n '$p' | awk '{print $1}')
-          echo "E2E_POD=$E2E_POD_TMP" >> $GITHUB_ENV
+#       - name: Get test job pod name
+#         run: |
+#           E2E_POD_TMP=$(kubectl get pods --selector=job-name=${{ env.JOB_NAME }} --sort-by=.status.startTime | sed -n '$p' | awk '{print $1}')
+#           echo "E2E_POD=$E2E_POD_TMP" >> $GITHUB_ENV
           
-      - name: Check job status
-        timeout-minutes: 5
-        run: |
-          JOB_STATUS=$(kubectl get pods ${{ env.E2E_POD }} --no-headers -o custom-columns=':status.phase')
-          while [ $JOB_STATUS != "Succeeded" ]
-          do
-            JOB_STATUS=$(kubectl get pods ${{ env.E2E_POD }} --no-headers -o custom-columns=':status.phase')
-          done
+#       - name: Check job status
+#         timeout-minutes: 5
+#         run: |
+#           JOB_STATUS=$(kubectl get pods ${{ env.E2E_POD }} --no-headers -o custom-columns=':status.phase')
+#           while [ $JOB_STATUS != "Succeeded" ]
+#           do
+#             JOB_STATUS=$(kubectl get pods ${{ env.E2E_POD }} --no-headers -o custom-columns=':status.phase')
+#           done
       
-      - name: Get test results
-        run: |
-          TEST_FAILED_TMP=$(kubectl logs ${{ env.E2E_POD }} | grep 'All Test Done' | sed -e 's/.*total fail \(.\).*\*\*\*/\1/')
-          echo "TEST_FAILED=$TEST_FAILED_TMP" >> $GITHUB_ENV
+#       - name: Get test results
+#         run: |
+#           TEST_FAILED_TMP=$(kubectl logs ${{ env.E2E_POD }} | grep 'All Test Done' | sed -e 's/.*total fail \(.\).*\*\*\*/\1/')
+#           echo "TEST_FAILED=$TEST_FAILED_TMP" >> $GITHUB_ENV
       
 #       - name: Rollback to previous version
 #         #helm upgrade --install --set image.repository="${{ env.DOCKER_USER }}/${{ env.DOCKER_HUB_REPO }}" --set image.tag=${{ env.CURRENT_TAG }} myapp testchart
           
-      - name: Show e2e-test result
+#       - name: Show e2e-test result
+#         run: |
+#           if [ ${{ env.TEST_FAILED }} -nq 0 ]; then
+#             echo "Count of failed tests: " ${{ env.TEST_FAILED }}
+#             echo "Complete logs output:" && kubectl logs ${{ env.E2E_POD }}
+#             exit 1
+#           fi
+   
+      - name: test ci-helper
         run: |
-          if [ ${{ env.TEST_FAILED }} -nq 0 ]; then
-            echo "Count of failed tests: " ${{ env.TEST_FAILED }}
-            echo "Complete logs output:" && kubectl logs ${{ env.E2E_POD }}
-            exit 1
-          fi
+          sleep 90
+          kubectl get po
           
+      - name: Release marker in ci-helper
+        run: kubectl scale deployment ci-helper --replicas=0
+   
+   
+   
 #       - name: Get workflow status
 #         run: |
 #           DEMO_APP_STATUS=$(curl https://api.github.com/repos/astravinskyi-gl/demo-app/actions/workflows/docker-image.yml/runs | jq '.workflow_runs[0].status')
 #           echo "DEMO_STATUS=$DEMO_APP_STATUS" >> $GITHUB_ENV
-          
-#       - name: test
-#         run: echo ${{ env.DEMO_STATUS }}
-          
-#       - name: test
-#         run: echo "hello"
           
 ### k get deploy myapp -o=jsonpath='{.spec.replicas}'
