@@ -28,10 +28,13 @@ jobs:
       - name: fail test
         id: test
         run: exit 1
+        continue-on-error: true
         
       - name: test if 
         if: steps.test.outcome != 'success'
-        run: echo "this is message on failure"
+        run: | 
+          echo "this is message on failure"
+          exit 1
         
       - name: test after if
         run: echo "this is hello after failure"
