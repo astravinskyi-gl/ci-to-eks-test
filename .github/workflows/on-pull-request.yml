@@ -27,7 +27,7 @@ jobs:
     
       - name: fail test
         id: test
-        run: exit 0
+        run: exit 1
         
       - name: test if 
         if: steps.test.outcome != 'success'
