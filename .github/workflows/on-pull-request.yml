@@ -24,138 +24,151 @@ jobs:
       APP_NAME: myapp
     
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+    
+      - name: fail test
+        id: test
+        run: exit 0
         
-      - name: Checkout config repo
-        uses: actions/checkout@v3
-        with:
-          repository: astravinskyi-gl/demo-app
-          path: mec_kubernetes
-
-#       - name: Add semantic version
-#         id: version
-#         uses: PaulHatch/semantic-version@v4.0.3
+      - name: test if 
+        #if: 
+        run: echo ${{ steps.test.outputs }}
+        
+      - name: test after if
+        run: echo "this is hello after failure"
+        
+        
+#       - name: Checkout
+#         uses: actions/checkout@v3
+        
+#       - name: Checkout config repo
+#         uses: actions/checkout@v3
 #         with:
-#           branch: master
-#           tag_prefix: "v"
-#           major_pattern: "BREAKING CHANGE:"
-#           minor_pattern: "feat:"
-#           format: "v${major}.${minor}.${patch}"
+#           repository: astravinskyi-gl/demo-app
+#           path: mec_kubernetes
 
-      - name: Login to DockerHub
-        uses: docker/login-action@v1
-        with:
-          username: ${{ env.DOCKER_USER }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-          
-      - name: Generate image tag
-        run: |
-          timestamp=$(date +%Y%m%d%H%M%S)
-          echo "RC_IMAGE_TAG=rc-$timestamp" >> $GITHUB_ENV
+# #       - name: Add semantic version
+# #         id: version
+# #         uses: PaulHatch/semantic-version@v4.0.3
+# #         with:
+# #           branch: master
+# #           tag_prefix: "v"
+# #           major_pattern: "BREAKING CHANGE:"
+# #           minor_pattern: "feat:"
+# #           format: "v${major}.${minor}.${patch}"
 
-      - name: Build and push
-        uses: docker/build-push-action@v2
-        with:
-          push: true
-          #tags: ${{ env.DOCKER_USER }}/${{ env.DOCKER_HUB_REPO }}:latest, ${{ env.DOCKER_USER }}/${{ env.DOCKER_HUB_REPO }}:${{ steps.version.outputs.version }}
-          tags: ${{ env.DOCKER_USER }}/${{ env.DOCKER_HUB_REPO }}:${{ env.RC_IMAGE_TAG }}
-      
-#       - name: Create Release
-#         if: ${{ !startsWith(github.ref, 'refs/tags/') }}
-#         uses: actions/create-release@v1
-#         env:
-#           GITHUB_TOKEN: ${{ secrets.github_token }}
+#       - name: Login to DockerHub
+#         uses: docker/login-action@v1
 #         with:
-#           tag_name: ${{ steps.version.outputs.version }}
-#           release_name: ${{ steps.version.outputs.version }}
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          role-to-assume: ${{ env.AWS_ROLE }}
-          #role-session-name: k8s-job-gh-actions
-          aws-region: ${{ env.AWS_REGION }}
+#           username: ${{ env.DOCKER_USER }}
+#           password: ${{ secrets.DOCKER_PASSWORD }}
           
-      - name: Setup kubectl
-        uses: azure/setup-kubectl@v2.0
-        with:
-          version: 'v1.23.5'
-          
-      - name: Set Kubernetes Context
-        uses: azure/k8s-set-context@v1
-        with:
-          method: kubeconfig
-          kubeconfig: ${{ secrets.KUBECONFIG }}
-
-      - name: Install Helm
-        uses: azure/setup-helm@v1
-        with:
-          version: v3.8.0
-
-      - name: Check if another e2e-test is not in progress
-        timeout-minutes: 10
-        run: | 
-          MARKER=$(kubectl get deploy ci-helper -o=jsonpath='{.spec.replicas}')
-          while [ $MARKER -ne 0 ]
-          do
-            MARKER=$(kubectl get deploy ci-helper -o=jsonpath='{.spec.replicas}')
-            sleep $((2 + $RANDOM % 3))
-          done
-          
-      - name: Set marker in ci-helper to blocked
-        run: kubectl scale deployment ci-helper --replicas=1
-
-### Alternative method which is better but requires adding additional labels to deployment
-### https://stackoverflow.com/questions/53450759/helm-upgrade-install-isnt-picking-up-new-changes
-      - name: Get current image tag in release
-        run: |
-          echo "CURRENT_TAG=$(helm get values ${{ env.APP_NAME }} | sed -n -e 's/^.*tag: //p')" >> $GITHUB_ENV
-        
-      - name: Deploy
-        run: helm upgrade --install --set image.repository="${{ env.DOCKER_USER }}/${{ env.DOCKER_HUB_REPO }}" --set image.tag=${{ env.RC_IMAGE_TAG }} ${{ env.APP_NAME }} testchart
-      
-      - name: Run test job
-        run: kubectl replace --force -f mec_kubernetes/${{ env.JOB_NAME }}.yml
-        
-      - name: Get test job pod name
-        run: |
-          E2E_POD_TMP=$(kubectl get pods --selector=job-name=${{ env.JOB_NAME }} --sort-by=.status.startTime | sed -n '$p' | awk '{print $1}')
-          echo "E2E_POD=$E2E_POD_TMP" >> $GITHUB_ENV
-          
-      - name: Check job status
-        timeout-minutes: 5
-        run: |
-          JOB_STATUS=$(kubectl get pods ${{ env.E2E_POD }} --no-headers -o custom-columns=':status.phase')
-          while [ $JOB_STATUS != "Succeeded" ]
-          do
-            JOB_STATUS=$(kubectl get pods ${{ env.E2E_POD }} --no-headers -o custom-columns=':status.phase')
-          done
-      
-      - name: Get test results
-        run: |
-          TEST_FAILED_TMP=$(kubectl logs ${{ env.E2E_POD }} | grep 'All Test Done' | sed -e 's/.*total fail \(.\).*\*\*\*/\1/')
-          echo "TEST_FAILED=$TEST_FAILED_TMP" >> $GITHUB_ENV
-      
-      - name: Rollback to previous version
-        run: helm upgrade --install --set image.repository="${{ env.DOCKER_USER }}/${{ env.DOCKER_HUB_REPO }}" --set image.tag=${{ env.CURRENT_TAG }} ${{ env.APP_NAME }} testchart
-          
-      - name: Show e2e-test result
-        run: |
-          if [ ${{ env.TEST_FAILED }} -nq 0 ]; then
-            echo "Count of failed tests: " ${{ env.TEST_FAILED }}
-            echo "Complete logs output:" && kubectl logs ${{ env.E2E_POD }}
-            exit 1
-          fi
-          
-      - name: Release marker in ci-helper
-        run: kubectl scale deployment ci-helper --replicas=0
-   
-   
-   
-#       - name: Get workflow status
+#       - name: Generate image tag
 #         run: |
-#           DEMO_APP_STATUS=$(curl https://api.github.com/repos/astravinskyi-gl/demo-app/actions/workflows/docker-image.yml/runs | jq '.workflow_runs[0].status')
-#           echo "DEMO_STATUS=$DEMO_APP_STATUS" >> $GITHUB_ENV
+#           timestamp=$(date +%Y%m%d%H%M%S)
+#           echo "RC_IMAGE_TAG=rc-$timestamp" >> $GITHUB_ENV
+
+#       - name: Build and push
+#         uses: docker/build-push-action@v2
+#         with:
+#           push: true
+#           #tags: ${{ env.DOCKER_USER }}/${{ env.DOCKER_HUB_REPO }}:latest, ${{ env.DOCKER_USER }}/${{ env.DOCKER_HUB_REPO }}:${{ steps.version.outputs.version }}
+#           tags: ${{ env.DOCKER_USER }}/${{ env.DOCKER_HUB_REPO }}:${{ env.RC_IMAGE_TAG }}
+      
+# #       - name: Create Release
+# #         if: ${{ !startsWith(github.ref, 'refs/tags/') }}
+# #         uses: actions/create-release@v1
+# #         env:
+# #           GITHUB_TOKEN: ${{ secrets.github_token }}
+# #         with:
+# #           tag_name: ${{ steps.version.outputs.version }}
+# #           release_name: ${{ steps.version.outputs.version }}
+
+#       - name: Configure AWS credentials
+#         uses: aws-actions/configure-aws-credentials@v1
+#         with:
+#           role-to-assume: ${{ env.AWS_ROLE }}
+#           #role-session-name: k8s-job-gh-actions
+#           aws-region: ${{ env.AWS_REGION }}
+          
+#       - name: Setup kubectl
+#         uses: azure/setup-kubectl@v2.0
+#         with:
+#           version: 'v1.23.5'
+          
+#       - name: Set Kubernetes Context
+#         uses: azure/k8s-set-context@v1
+#         with:
+#           method: kubeconfig
+#           kubeconfig: ${{ secrets.KUBECONFIG }}
+
+#       - name: Install Helm
+#         uses: azure/setup-helm@v1
+#         with:
+#           version: v3.8.0
+
+#       - name: Check if another e2e-test is not in progress
+#         timeout-minutes: 10
+#         run: | 
+#           MARKER=$(kubectl get deploy ci-helper -o=jsonpath='{.spec.replicas}')
+#           while [ $MARKER -ne 0 ]
+#           do
+#             MARKER=$(kubectl get deploy ci-helper -o=jsonpath='{.spec.replicas}')
+#             sleep $((2 + $RANDOM % 3))
+#           done
+          
+#       - name: Set marker in ci-helper to blocked
+#         run: kubectl scale deployment ci-helper --replicas=1
+
+# ### Alternative method which is better but requires adding additional labels to deployment
+# ### https://stackoverflow.com/questions/53450759/helm-upgrade-install-isnt-picking-up-new-changes
+#       - name: Get current image tag in release
+#         run: |
+#           echo "CURRENT_TAG=$(helm get values ${{ env.APP_NAME }} | sed -n -e 's/^.*tag: //p')" >> $GITHUB_ENV
+        
+#       - name: Deploy
+#         run: helm upgrade --install --set image.repository="${{ env.DOCKER_USER }}/${{ env.DOCKER_HUB_REPO }}" --set image.tag=${{ env.RC_IMAGE_TAG }} ${{ env.APP_NAME }} testchart
+      
+#       - name: Run test job
+#         run: kubectl replace --force -f mec_kubernetes/${{ env.JOB_NAME }}.yml
+        
+#       - name: Get test job pod name
+#         run: |
+#           E2E_POD_TMP=$(kubectl get pods --selector=job-name=${{ env.JOB_NAME }} --sort-by=.status.startTime | sed -n '$p' | awk '{print $1}')
+#           echo "E2E_POD=$E2E_POD_TMP" >> $GITHUB_ENV
+          
+#       - name: Check job status
+#         timeout-minutes: 5
+#         run: |
+#           JOB_STATUS=$(kubectl get pods ${{ env.E2E_POD }} --no-headers -o custom-columns=':status.phase')
+#           while [ $JOB_STATUS != "Succeeded" ]
+#           do
+#             JOB_STATUS=$(kubectl get pods ${{ env.E2E_POD }} --no-headers -o custom-columns=':status.phase')
+#           done
+      
+#       - name: Get test results
+#         run: |
+#           TEST_FAILED_TMP=$(kubectl logs ${{ env.E2E_POD }} | grep 'All Test Done' | sed -e 's/.*total fail \(.\).*\*\*\*/\1/')
+#           echo "TEST_FAILED=$TEST_FAILED_TMP" >> $GITHUB_ENV
+      
+#       - name: Rollback to previous version
+#         run: helm upgrade --install --set image.repository="${{ env.DOCKER_USER }}/${{ env.DOCKER_HUB_REPO }}" --set image.tag=${{ env.CURRENT_TAG }} ${{ env.APP_NAME }} testchart
+          
+#       - name: Show e2e-test result
+#         run: |
+#           if [ ${{ env.TEST_FAILED }} -nq 0 ]; then
+#             echo "Count of failed tests: " ${{ env.TEST_FAILED }}
+#             echo "Complete logs output:" && kubectl logs ${{ env.E2E_POD }}
+#             exit 1
+#           fi
+          
+#       - name: Release marker in ci-helper
+#         run: kubectl scale deployment ci-helper --replicas=0
+   
+   
+   
+# #       - name: Get workflow status
+# #         run: |
+# #           DEMO_APP_STATUS=$(curl https://api.github.com/repos/astravinskyi-gl/demo-app/actions/workflows/docker-image.yml/runs | jq '.workflow_runs[0].status')
+# #           echo "DEMO_STATUS=$DEMO_APP_STATUS" >> $GITHUB_ENV
           
 ### k get deploy myapp -o=jsonpath='{.spec.replicas}'
