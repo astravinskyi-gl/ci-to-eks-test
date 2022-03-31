@@ -33,7 +33,7 @@ jobs:
       - name: test if 
         if: steps.test.outcome != 'success'
         run: | 
-          echo "this is message on failure with protected branch 111111111"
+          echo "this is message on failure with protected branch hh"
           exit 1
         
       - name: test after if
