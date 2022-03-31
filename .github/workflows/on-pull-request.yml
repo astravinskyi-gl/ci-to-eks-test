@@ -27,7 +27,7 @@ jobs:
     
       - name: fail test
         id: test
-        run: exit 1
+        run: exit 0
         continue-on-error: true
         
       - name: test if 
