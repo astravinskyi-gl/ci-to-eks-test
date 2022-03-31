@@ -31,7 +31,7 @@ jobs:
         
       - name: test if 
         #if: 
-        run: echo ${{ steps.test.outputs }}
+        run: echo ${{ steps.test.outcome }}
         
       - name: test after if
         run: echo "this is hello after failure"
