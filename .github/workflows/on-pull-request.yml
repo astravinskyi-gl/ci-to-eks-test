@@ -4,6 +4,8 @@ on:
   workflow_dispatch:
   pull_request:
     branches: [ main ]
+    tags:
+      - 'v*'
 
 jobs:
   on-pr-ci:
@@ -165,6 +167,8 @@ jobs:
         with:
           images: ${{ env.DOCKER_USER }}/${{ env.DOCKER_HUB_REPO }}
           tags: |
+            type=ref,event=branch
+            type=ref,event=pr
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             
