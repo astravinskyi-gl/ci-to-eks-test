@@ -13,7 +13,7 @@ jobs:
     permissions:
       id-token: write
       contents: write
-## test push
+## test push sd
     env:
       DOCKER_USER: astravinskyigl
       DOCKER_HUB_REPO: demoapp
