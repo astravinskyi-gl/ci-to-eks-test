@@ -1,0 +1,21 @@
+name: On merge test
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+## breaking change test
+jobs:
+  on-push-ci:
+    runs-on: ubuntu-latest
+
+# permissions required by configure AWS creds step
+    permissions:
+      id-token: write
+      contents: write
+    
+    steps:
+        
+        
+      - name: Checkout
+        run: echo "say hello"
