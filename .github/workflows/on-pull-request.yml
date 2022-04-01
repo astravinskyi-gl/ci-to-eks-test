@@ -28,6 +28,8 @@ jobs:
         
       - name: Checkout
         uses: actions/checkout@v3
+        with:                    # !!!! required for semver
+          fetch-depth: 0
         
       - name: Checkout config repo
         uses: actions/checkout@v3
