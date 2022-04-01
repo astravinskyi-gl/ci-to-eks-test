@@ -41,8 +41,6 @@ jobs:
           username: ${{ env.DOCKER_USER }}
           password: ${{ secrets.DOCKER_PASSWORD }}
           
-          #fgh
-          
       - name: Generate image tag
         run: |
           timestamp=$(date +%Y%m%d%H%M%S)
