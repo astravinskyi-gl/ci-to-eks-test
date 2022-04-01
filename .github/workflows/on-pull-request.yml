@@ -156,7 +156,9 @@ jobs:
       - name: Tag with new version and push
         run: |
           docker tag ${{ env.DOCKER_USER }}/${{ env.DOCKER_HUB_REPO }}:${{ env.RC_IMAGE_TAG }} ${{ env.DOCKER_USER }}/${{ env.DOCKER_HUB_REPO }}:${{ steps.version.outputs.version }}
+          docker tag ${{ env.DOCKER_USER }}/${{ env.DOCKER_HUB_REPO }}:${{ env.RC_IMAGE_TAG }} ${{ env.DOCKER_USER }}/${{ env.DOCKER_HUB_REPO }}:latest
           docker push ${{ env.DOCKER_USER }}/${{ env.DOCKER_HUB_REPO }}:${{ steps.version.outputs.version }}
+          docker push ${{ env.DOCKER_USER }}/${{ env.DOCKER_HUB_REPO }}:latest
             
 #       - name: Build and push
 #         uses: docker/build-push-action@v2
