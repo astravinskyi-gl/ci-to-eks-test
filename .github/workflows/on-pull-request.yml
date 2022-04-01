@@ -168,8 +168,6 @@ jobs:
 #           push: true
 #           tags: ${{ env.DOCKER_USER }}/${{ env.DOCKER_HUB_REPO }}:latest, ${{ env.DOCKER_USER }}/${{ env.DOCKER_HUB_REPO }}:${{ steps.version.outputs.version }}
    
-   #sdgfsdf
-   
 #       - name: Get workflow status
 #         run: |
 #           DEMO_APP_STATUS=$(curl https://api.github.com/repos/astravinskyi-gl/demo-app/actions/workflows/docker-image.yml/runs | jq '.workflow_runs[0].status')
