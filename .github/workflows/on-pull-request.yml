@@ -2,7 +2,7 @@ name: Docker Image CI
 
 on:
   workflow_dispatch:
-  push:
+  pull_request:
     branches: [ main ]
 ## breaking change test
 jobs:
