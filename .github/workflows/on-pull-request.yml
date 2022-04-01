@@ -45,7 +45,7 @@ jobs:
         run: |
           timestamp=$(date +%Y%m%d%H%M%S)
           echo "RC_IMAGE_TAG=rc-$timestamp" >> $GITHUB_ENV
-#te
+          
       - name: Build and push
         uses: docker/build-push-action@v2
         with:
