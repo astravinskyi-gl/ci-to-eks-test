@@ -151,7 +151,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.github_token }}
         with:
           tag_name: ${{ steps.version.outputs.version }}
-          #release_name: ${{ steps.version.outputs.version }}
+          release_name: ${{ steps.version.outputs.version }}
           
       - name: Tag with new version and push
         run: |
