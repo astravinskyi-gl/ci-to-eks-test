@@ -145,8 +145,6 @@ jobs:
           major_pattern: "BREAKING CHANGE:"
           minor_pattern: "feat:"
           format: "v${major}.${minor}.${patch}"
-          
-      #- sdfs
         
       - name: Create Release
         if: ${{ !startsWith(github.ref, 'refs/tags/') }}
