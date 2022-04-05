@@ -165,7 +165,7 @@ jobs:
       ###############3
 
       - name: Delete unused tags from Docker hub
-        run: curl -u ${{ env.DOCKER_USER }}:${{ secrets.DOCKER_PASSWORD }} -X "DELETE" https://cloud.docker.com/v2/repositories/${{ env.DOCKER_USER }}/${{ env.DOCKER_HUB_REPO }}/tags/rc-20220401132028/
+        run: curl -u ${{ env.DOCKER_USER }}:${{ secrets.DOCKER_PASSWORD }} -X "DELETE" https://cloud.docker.com/v2/repositories/${{ env.DOCKER_USER }}/${{ env.DOCKER_HUB_REPO }}/tags/v1.0.2
             
 #       - name: Build and push
 #         uses: docker/build-push-action@v2
