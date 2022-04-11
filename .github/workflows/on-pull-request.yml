@@ -151,10 +151,10 @@ jobs:
         id: version
         uses: PaulHatch/semantic-version@v4.0.3
         with:
-          branch: main
+          #branch: main
           tag_prefix: "v"
-          major_pattern: "(major)"
-          minor_pattern: "(minor)"
+          major_pattern: "major:"
+          minor_pattern: "minor:"
           format: "v${major}.${minor}.${patch}"
         
       - name: Create Release
