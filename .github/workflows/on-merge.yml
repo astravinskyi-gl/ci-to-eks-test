@@ -2,8 +2,8 @@ name: On merge test
 
 on:
   workflow_dispatch:
-  pull_request:
-    branches: [ main ]
+#   pull_request:
+#     branches: [ main ]
 ## breaking change test
 jobs:
   on-push-ci:
