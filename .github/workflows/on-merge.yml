@@ -25,7 +25,8 @@ jobs:
       - name: fail
         run: |
           TEST=$(cat CI-helper.py | grep test22)
-          if (( $TEST == "#test22" ));
+          if [[ $TEST == '#test22' ]];
           then
-            exit 1
+            echo $TEST;
+            exit 1;
           fi
