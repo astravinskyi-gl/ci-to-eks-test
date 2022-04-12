@@ -22,10 +22,13 @@ jobs:
 #       - name: Checkout
 #         run: echo "say hello"
 
-      - name: fail
+      - name: test 
+        run: ls -la
+
+      - name: test failing
         run: |
           TEST=$(cat CI-helper.py | grep test22); 
-          if [[ $TEST == '#test22' ]]; 
-          then 
-            echo 'hello'; 
-          fi
+          #if [[ $TEST == '#test22' ]]; 
+          #then 
+           # echo 'hello'; 
+          #fi
