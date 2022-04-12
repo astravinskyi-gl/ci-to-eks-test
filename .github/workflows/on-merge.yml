@@ -24,8 +24,8 @@ jobs:
 
       - name: test failing
         run: |
-          cat CI-helper.py
-          #TEST=$(cat CI-helper.py | grep test22); 
+          TEST1=$(cat CI-helper.py | grep test22)
+          echo $TEST1
           #if [[ $TEST == '#test22' ]]; 
           #then 
            # echo 'hello'; 
