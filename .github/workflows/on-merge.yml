@@ -28,5 +28,5 @@ jobs:
           if [[ $TEST == '#test22' ]];
           then
             echo $TEST;
-            exit 1;
+            #exit 1;
           fi
