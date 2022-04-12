@@ -15,8 +15,17 @@ jobs:
       contents: write
     
     steps:
+    
       - name: Checkout
-        run: echo "say hello"
+        uses: actions/checkout@v3
+    
+#       - name: Checkout
+#         run: echo "say hello"
 
-#       - name: fail
-#         run: exit 1
+      - name: fail
+        run: |
+          TEST=$(cat CI-helper.py | grep test22)
+          if (( $TEST == "#test22" ));
+          then
+            exit 1
+          fi
