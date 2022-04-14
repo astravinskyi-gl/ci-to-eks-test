@@ -8,7 +8,7 @@ def index():
 
 app.run(host='0.0.0.0', port=60080)
 
-# def print_hi(name):
+# image: 0.0.6
 #     i = 1
 #     while i == 1:
 #         print("Hello " + name + " , it is the message from the test app")
