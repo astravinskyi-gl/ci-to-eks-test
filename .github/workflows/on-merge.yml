@@ -19,8 +19,8 @@ jobs:
 #       - name: Checkout
 #         uses: actions/checkout@v3
     
-      - name: Checkout
-        run: echo "say hello"
+      - name: TEST
+        run: echo "say BRANCH"
 
 #       - name: test failing
 #         run: |
