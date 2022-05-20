@@ -4,7 +4,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def index():
-    return 'CI helper marker'
+    return 'CI Helper Marker'
 
 app.run(host='0.0.0.0', port=60080)
 
