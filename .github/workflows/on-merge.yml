@@ -16,11 +16,14 @@ jobs:
     
     steps:
     
-#       - name: Checkout
-#         uses: actions/checkout@v3
-    
       - name: Checkout
+        uses: actions/checkout@v3
+    
+      - name: TEST MAIN
         run: echo "say hello"
+        
+      - name: ls repo
+        run: ls -la
 
 #       - name: test failing
 #         run: |
