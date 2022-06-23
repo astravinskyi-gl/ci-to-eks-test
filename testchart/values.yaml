@@ -2,7 +2,7 @@
 replicaCount: 1
 
 image:
-  repository: astravinskyigl/demoap
+  repository: astravinskyigl/demoapp
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
   tag: "latest"
