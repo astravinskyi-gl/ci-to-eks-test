@@ -4,7 +4,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def index():
-    return 'FIRST cluster message' 
+    return 'SECOND cluster message' 
 #'CI helper marker'
 
 app.run(host='0.0.0.0', port=60080)
